@@ -1,5 +1,6 @@
 import React from "react"
 import { Text, View } from "react-native";
+import { appStyles } from "../styles";
 
 type Props = {
     definition: string;
@@ -7,8 +8,8 @@ type Props = {
 
 function CardDefinition({definition}: Props) {
     return (
-        <View>
-            <Text>{definition}</Text>
+        <View style={appStyles.card}>
+            <Text style={appStyles.labelDefinition}>{definition}</Text>
         </View>
     )
 }
