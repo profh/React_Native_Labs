@@ -56,6 +56,7 @@ class GameScreen extends Component {
     if (this.accelerometerSubscription) {
       this.accelerometerSubscription.remove();
     }
+    this.soundManager.cleanup();
   }
 
   /**
@@ -86,8 +87,8 @@ class GameScreen extends Component {
         const xStart =
           SCREEN_WIDTH / 2 -
           invaderHalfWidth -
-          currentLevel * invaderWidth +
-          Constants.Invader.horizontalSpacing;
+          currentLevel * (invaderWidth +
+          Constants.Invader.horizontalSpacing);
 
         const x =
           xStart +

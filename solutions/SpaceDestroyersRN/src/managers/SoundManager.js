@@ -64,7 +64,8 @@ class SoundManager {
    * Clean up sound resources
    */
   cleanup() {
-    this.laser.cleanup();
+    this.playerLaser.cleanup();
+    this.invaderLaser.cleanup();
     this.initialized = false;
   }
 }
