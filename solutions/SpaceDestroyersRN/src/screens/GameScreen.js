@@ -7,8 +7,8 @@ import PlayerBullet from '../entities/PlayerBullet';
 import InvaderBullet from '../entities/InvaderBullet';
 import Constants from '../config/Constants';
 import GameStateManager from '../managers/GameStateManager';
+import SoundManager from '../managers/SoundManager';
 import { detectCollisions, detectEntityCollisions } from '../utils/CollisionDetection';
-import { useAudioPlayer } from 'expo-audio';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -22,6 +22,7 @@ class GameScreen extends Component {
     super(props);
 
     this.gameStateManager = GameStateManager.getInstance();
+    this.soundManager = SoundManager.getInstance();
 
     this.state = {
       player: new Player(SCREEN_WIDTH, SCREEN_HEIGHT),
@@ -42,7 +43,7 @@ class GameScreen extends Component {
   }
 
   async componentDidMount() {
-    this.soundPlayer = useAudioPlayer('../../assets/sounds/laser.mp3');
+    await this.soundManager.initialize();
     this.setupInvaders();
     this.setupAccelerometer();
     this.startGameLoop();
@@ -238,7 +239,7 @@ class GameScreen extends Component {
         invadersWhoCanFire[Math.floor(Math.random() * invadersWhoCanFire.length)];
       const pos = randomInvader.getBulletSpawnPosition();
       const bullet = new InvaderBullet(pos.x, pos.y);
-      this.soundPlayer.play();
+      this.soundManager.playSound('invader');
 
       this.setState({
         invaderBullets: [...invaderBullets, bullet],
@@ -256,7 +257,7 @@ class GameScreen extends Component {
 
     const pos = player.getBulletSpawnPosition();
     const bullet = new PlayerBullet(pos.x, pos.y);
-    this.soundPlayer.play();
+    this.soundManager.playSound('player');
 
     // Toggle player image for animation
     player.toggleImage();
