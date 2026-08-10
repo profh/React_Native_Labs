@@ -10,3 +10,6 @@ Part 2
 
 Part 5
    11. @expo/vector-icons will be deprecated and is not recommended. Learn more about migrating to @react-native-vector-icons.
+
+Other notes:
+Looking at other labs, should all functions be replaced with arrow functions and functional components where appropriate for consistency across labs and standardized react coding? 
