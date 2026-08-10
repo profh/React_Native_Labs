@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, FlatList, TextInput, Alert } from 'react-native';
+import { Text, View, FlatList, TextInput, Alert, RefreshControl } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { styles } from '../styles/AppStyles';
 import { fetchRepositories } from '../services/RepositoryService';
@@ -10,6 +10,7 @@ export const HomeScreen = () => {
   const [displayedRepos, setDisplayedRepos] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -46,6 +47,12 @@ export const HomeScreen = () => {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
+
   if (loading) {
     return (
       <View style={styles.centerContainer}>
@@ -54,7 +61,7 @@ export const HomeScreen = () => {
     );
   } else {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} on>
         <TextInput
           style={styles.searchInput}
           placeholder="Search"
@@ -64,6 +71,7 @@ export const HomeScreen = () => {
         <FlatList
           data={displayedRepos}
           keyExtractor={(item) => item.id.toString()}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}>Pull to refresh</RefreshControl>}
           renderItem={({ item }) => (
             <RepositoryRow
               repository={item}
