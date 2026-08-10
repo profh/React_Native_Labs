@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Text, View, StyleSheet, Button, Dimensions, Alert } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import * as ImageManipulator from "expo-image-manipulator";
+import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 import * as tf from "@tensorflow/tfjs";
 import "@tensorflow/tfjs-react-native";
 import * as mobilenet from "@tensorflow-models/mobilenet";
 import jpeg from "jpeg-js";
 import { EmojiSearchStatus } from "../models/Types";
+import { File } from "expo-file-system";
 
 type CustomCameraProps = {
   emojiNames: string[];
@@ -48,20 +49,22 @@ export const CustomCamera: React.FC<CustomCameraProps> = ({ emojiNames, onEmojiF
 
   const imageToTensor = async (imageUri: string) => {
     // Resize the image to fit the input shape expected by the Mobile Net Model
-    const manipulatedImage = await ImageManipulator.manipulateAsync(
-      imageUri,
-      [{ resize: { width: 224, height: 224 } }],
-      { format: ImageManipulator.SaveFormat.JPEG }
-    );
 
-    console.log("imageUri:", imageUri);
+    const imageManipulatorContext = ImageManipulator.manipulate(imageUri);
 
-    // Fetches the uri of the modified image and then converts to the image to binary
-    const response = await fetch(manipulatedImage.uri);
-    const imageData = await response.arrayBuffer();
+    const manipulatedImageAsync = await imageManipulatorContext.resize({ width: 224, height: 224 });
+    const renderedImage = await manipulatedImageAsync.renderAsync();
+
+    const result = await renderedImage.saveAsync({
+      format: SaveFormat.JPEG,
+      base64: true,
+    });
+
+    // Create a file of the modified image and then convert the image to binary
+    const arrayBuffer = await new File(result.uri).arrayBuffer();
 
     // Decode the JPEG image to a Uint8Array with jpeg-js. Decoding with jpeg-js automatically includes the alpha/transparency channel
-    const { width, height, data } = jpeg.decode(imageData, { useTArray: true });
+    const { width, height, data } = jpeg.decode(arrayBuffer, { useTArray: true });
 
     // Remove alpha channel from the image data since MobileNet is not expected it
     const rgbArray = new Uint8Array(width * height * 3);
